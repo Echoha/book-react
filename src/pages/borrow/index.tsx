@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import dayjs from 'dayjs'
 import styles from './index.module.css'
 import { borrowDelete, getBorrowList } from "@/api/borrow";
-import { BookQueryType, BookType, BorrowQueryType, BorrowType, CategoryType } from "@/type";
+import { BookQueryType, BookType, BorrowQueryType, BorrowType, CategoryType, UserType } from "@/type";
 import Content from "@/components/Content";
 import { getCategoryList } from "@/api/category";
 import { getBookList } from "@/api/book";
@@ -64,7 +64,7 @@ export default function Borrow() {
   const [data, setData] = useState([])
   const [bookList, setBookList] = useState<BookType []>([])
   // todo ts type
-  const [userList, setUserList] = useState<any []>([])
+  const [userList, setUserList] = useState<UserType []>([])
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     current: 1,
     pageSize: 20,
@@ -80,6 +80,7 @@ export default function Borrow() {
       ...search, 
     })
     const { data } = res;
+    console.log(data);
     const formattedData = data.map((item: BorrowType) => ({
       ...item.book,
       ...item.user,

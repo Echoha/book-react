@@ -1,10 +1,5 @@
-import {
-  LaptopOutlined,
-  NotificationOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
 import { DownOutlined } from "@ant-design/icons";
-import { MenuProps, Space } from "antd";
+import { MenuProps, Space, message } from "antd";
 import { Layout as AntdLayout, Breadcrumb, Dropdown, Menu } from "antd";
 import Head from "next/head";
 import Image from "next/image";
@@ -12,6 +7,8 @@ import { useRouter } from "next/router";
 import React, { PropsWithChildren } from "react";
 
 import styles from "./index.module.css";
+import { logout } from "@/api/user";
+import Link from "next/link";
 
 const { Header, Content, Sider } = AntdLayout;
 
@@ -58,16 +55,7 @@ const ITEMS = [
   },
 ];
 
-const USER_ITEMS: MenuProps["items"] = [
-  {
-    label: "用户中心",
-    key: "1",
-  },
-  {
-    label: "登出",
-    key: "2",
-  },
-];
+
 
 // export function Layout({ children }: { children: ReactNode }) {
 export const Layout: React.FC<PropsWithChildren> = ({ children }) => {
@@ -75,6 +63,23 @@ export const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
     router.push(key);
   };
+  const USER_ITEMS: MenuProps["items"] = [
+    {
+      // todo 这里的id是写死的，得后端写完才可以
+      label: <Link href="/user/edit/id">用户中心</Link>,
+      key: "1",
+    },
+    {
+      label: <span onClick={async () => {
+        await logout();
+        message.success("登出成功");
+        router.push("/login");
+      }}>登出</span>,
+      key: "2",
+    },
+  ];
+
+
   const activeMenu = router.pathname;
   return (
     <>
@@ -94,7 +99,7 @@ export const Layout: React.FC<PropsWithChildren> = ({ children }) => {
               alt="logo"
               className={styles.logo}
             />
-            三木图书管理系统
+            图书管理系统
             <span className={styles.user}>
               <Dropdown menu={{ items: USER_ITEMS }}>
                 <a onClick={(e) => e.preventDefault()}>

@@ -14,6 +14,5 @@ export interface BorrowQueryType {
     borrowAt: number;
     backAt: number;
     // todo user ts
-    user: any;
-
+    user: UserType;
   }

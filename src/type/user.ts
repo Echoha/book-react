@@ -13,6 +13,7 @@ export interface UserType {
     _id?: string;
     sex?: USER_SEX;
     role?: USER_ROLE;
+    password: string;
     // status: USER_STATUS;
 
 }
