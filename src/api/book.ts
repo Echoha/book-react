@@ -1,9 +1,14 @@
 import request from "@/utils/request";
-import axios from "axios";
 import qs from "qs";
 
-import { BookQueryType } from "./../type/book.d";
+import { BookQueryType, BookType } from "./../type/book.d";
 
 export async function getBookList(params?: BookQueryType) {
   return request.get(`/api/books?${qs.stringify(params)}`);
+}
+export async function bookAdd(params: BookType) {
+  return request.post("/api/books/", params);
+}
+export async function bookDelete(id: string) {
+  return request.delete(`/api/books/${id}`);
 }

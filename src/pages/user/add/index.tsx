@@ -1,10 +1,5 @@
-import styles from "@/styles/Home.module.css";
-import { Inter } from "next/font/google";
-import Head from "next/head";
-import Image from "next/image";
-
-const inter = Inter({ subsets: ["latin"] });
+import UserForm from "@/components/UserForm";
 
 export default function Home() {
-  return <>user add</>;
+  return <UserForm  title="用户添加"/>;
 }
