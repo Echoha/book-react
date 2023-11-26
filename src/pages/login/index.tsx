@@ -1,9 +1,7 @@
-import { Inter } from 'next/font/google';
 import { Button, Form, Input, message } from 'antd';
 import styles from "./index.module.css";
 import { login } from '@/api/user';
 import { useRouter } from 'next/router';
-const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
   const router = useRouter();

@@ -28,7 +28,7 @@ export default function BorrowForm({title, editData}:{title: string}) {
   }
 
   const handleBookChange = (value, option)=> {
-    setStock(option.stock);
+    setStock(option.storeNum);
   }
   useEffect(()=> {
     getUserList().then((res) => {
@@ -58,15 +58,15 @@ export default function BorrowForm({title, editData}:{title: string}) {
         }
       ]}
       >
-        <Select
+        {/* <Select
           placeholder="请选择"
           options={bookList.map((item: BookType) => ({
             label: item.name,
-            value: item._id,
-            stock: item.stock,
+            value: item.id,
+            storeNum: item.storeNum,
           }))}
           onChange={handleBookChange}
-        ></Select>
+        ></Select> */}
       </Form.Item>
       <Form.Item 
       label="借阅用户" 

@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Button,
   DatePicker,
@@ -8,15 +8,15 @@ import {
   InputNumber,
   Select,
   Image,
-  message
+  message,
+  FormInstance
 } from 'antd';
-import { bookAdd } from '@/api/book';
+import { bookAdd, bookEdit } from '@/api/book';
 import { BookType, CategoryType } from '@/type';
 import { useRouter } from 'next/router';
 import styles from './index.module.css';
 import dayjs from 'dayjs';
 import Content from '../Content';
-import { getCategoryList } from '@/api/category';
 
 const { TextArea } = Input;
 enum TAG{
@@ -34,27 +34,67 @@ enum TAG{
 
 const {Option} = Select;
 
-export default function BookForm({title}: {title: string}) {
+export default function BookEditForm({title}: {title: string}) {
     const [preview, setPreview] = useState("");
     const [form] = Form.useForm();
+    const formRef = useRef<FormInstance>(null);
     const router = useRouter();
+    const [editBookData, setEditBookData] = useState<BookType | null>(null);
     const [selectTag, setSelectTag] = useState<TAG>(TAG.Tag1);
+    const emptyBookData: BookType = {
+      id: '',
+      name: '',
+      author: '',
+      publisher: '',
+      cover: '',
+      publishAt: '',
+      storeNum: 0,
+      description: '',
+      tag: ''
+    }
+    // const [categoryList, setCategoryList] = useState<CategoryType []>([]);
     const handleFinish = async (values: BookType) => {
-    
       if(values.publishAt) {
         values.publishAt = dayjs(values.publishAt).format('YYYY-MM-DD');
       }
+      values.id = editBookData?.id || "";
       debugger
-      await bookAdd(values);
-      message.success("创建成功");
+      await bookEdit(values);
+      message.success("编辑成功");
+      localStorage.removeItem("editBookData");
       router.push("/book");
     }
     const handleSelectChange = (value: TAG) => {
       setSelectTag(value);
     }
+    async function fetchData() {
+      const storedData = localStorage.getItem("editBookData");
+      if (storedData) {
+        const bookData: BookType = JSON.parse(storedData) as BookType;
+        setEditBookData(bookData);
+      } else {
+        setEditBookData(emptyBookData);
+        
+      }
+    }
+
+  
+    useEffect(() => {
+         fetchData()  
+         if(editBookData && formRef.current) {
+          formRef.current.setFieldsValue(editBookData);
+          
+        }
+         // console.log(editBookData.name);
+         // 删除缓存
+         return () => {
+          //
+         }
+    }, [editBookData?.id])
     return (
         <Content title={title}>
           <Form
+            ref = {formRef}
             form={form}
             className={styles.form}
             labelCol={{ span: 4 }}
@@ -112,7 +152,6 @@ export default function BookForm({title}: {title: string}) {
                 style={{width: "calc(100% - 63px)"}}
                 onChange={(e)=> {
                   form.setFieldValue("cover", e.target.value);
-                  console.log(e.target.value);
                  }}
                 />
                 <Button 
@@ -128,13 +167,11 @@ export default function BookForm({title}: {title: string}) {
                 <Image src={preview} width={100} height={100} alt=""/>
               </Form.Item>
             }
-            <Form.Item label="出版日期" name="publishAt" >
+            {/* <Form.Item label="出版日期" name="publishAt" >
               <DatePicker placeholder='请选择'/>
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item label="出版社" name="publisher">
-              <Input 
-                  placeholder='请输入'
-                />
+              <Input placeholder='请输入'/>
             </Form.Item>
             <Form.Item 
               label="库存" 

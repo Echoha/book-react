@@ -1,19 +1,16 @@
 export interface BookQueryType {
-  all?: boolean;
-  level?: number;
-  name?: string;
-  author?: string;
-  category?: number;
-  current?: number;
-  pageSize?: number;
+   name?: string;
+   author?: string;
+   tag?: string;
 }
 export interface BookType {
+  id: string;
   name: string;
   author: string;
-  category: string;
+  publisher: string;
   cover: string;
-  publishAt: number;
-  stock: number;
+  publishAt: string;
+  storeNum: number;
   description: string;
-  _id: string;
+  tag: string;
 }

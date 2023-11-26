@@ -14,18 +14,7 @@ import styles from './index.module.css';
 import Content from '../Content';
 import { LEVEL_OPTIONS } from '@/pages/category';
 import { categoryAdd, getCategoryList } from '@/api/category';
-/*
-const { RangePicker } = DatePicker;
-const { TextArea } = Input;
 
-
-const normFile = (e: any) => {
-  if (Array.isArray(e)) {
-    return e;
-  }
-  return e?.fileList;
-};
-*/
 
 export default function CategoryForm({title}: {title: string}) {
     const [form] = Form.useForm();

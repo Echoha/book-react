@@ -29,6 +29,7 @@ export const CreateAxiosInstance = (
 ): AxiosInstanceType => {
   const instance = axios.create({
     timeout: 5000,
+    baseURL: "http://localhost:8081",
     ...config,
   });
 
