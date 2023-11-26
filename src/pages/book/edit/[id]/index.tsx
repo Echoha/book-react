@@ -1,5 +1,5 @@
-import BookForm from "@/components/BookForm";
+import BookEditForm from "@/components/BookEditForm ";
 
 export default function Home() {
-  return <BookForm title="图书编辑"/>;
+  return <BookEditForm title="图书编辑"/>;
 }

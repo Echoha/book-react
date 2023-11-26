@@ -3,10 +3,23 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import dayjs from 'dayjs'
 import styles from './index.module.css'
-import { bookDelete, getBookList } from "@/api/book";
-import { BookQueryType, CategoryType } from "@/type";
+import { bookDelete, bookEdit, getBookList } from "@/api/book";
+import { BookQueryType, BookType, CategoryType } from "@/type";
 import Content from "@/components/Content";
-import { getCategoryList } from "@/api/category";
+
+
+enum TAG{
+  Tag1 = "历史小说", 
+  Tag2 ="外国小说", 
+  Tag3 ="现代小说",
+  Tag4 ="近代小说",
+  Tag5 ="教育", 
+  Tag6 ="散文", 
+  Tag7 ="杂文", 
+  Tag8 ="社会", 
+  Tag9 ="科学", 
+  Tag10 ="历史"
+}
 
 const COLUMNS = [
   {
@@ -36,16 +49,22 @@ const COLUMNS = [
   },
   {
     title: '分类',
-    dataIndex: 'category',
-    key: 'category',
+    dataIndex: 'tag',
+    key: 'tag',
     width: 80
+  },
+  {
+    title: '出版社',
+    dataIndex: 'publisher',
+    key: 'publisher',
+    width: 130
   },
   {
     title: '描述',
     dataIndex: 'description',
     key: 'description',
     ellipsis: true,
-    width: 200,
+    width: 100,
     render: (text: string) => {
       return <Tooltip title={text} placement="topLeft">
         {text}
@@ -54,32 +73,35 @@ const COLUMNS = [
   },
   {
     title: '库存',
-    dataIndex: 'stock',
-    key: 'stock',
+    dataIndex: 'storeNum',
+    key: 'storeNum',
     width: 80
   },
   {
     title: '创建时间',
-    dataIndex: 'createdAt',
-    key: 'createdAt',
+    dataIndex: 'publishAt',
+    key: 'publishAt',
     width: 130,
     render: (text: string) => dayjs(text).format('YYYY-MM-DD')
   },
 ];
 
+const {Option} = Select;
+
 export default function Home() {
   const [form] = Form.useForm()
   const router = useRouter()
   const [data, setData] = useState([])
+  const [selectTag, setSelectTag] = useState<TAG>(TAG.Tag1);
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     current: 1,
     pageSize: 20,
     showSizeChanger: true,
     total: 0
   })
-  const [categoryList, setCategoryList] = useState<CategoryType[]>([]);
+  // const [categoryList, setCategoryList] = useState<CategoryType[]>([]);
 
-  async function fetchData(search?: BookQueryType) {
+  /*async function fetchData(search?: BookQueryType) {
     const res = await getBookList({ 
       current: pagination.current, 
       pageSize: pagination.pageSize,
@@ -87,20 +109,42 @@ export default function Home() {
     })
     const { data } = res;
     setData(data);
+    console.log(data);
     setPagination({...pagination, total: res.total});
+  }*/
+  /*async function fetchData(search?: BookQueryType) {
+    debugger
+    const res = await getBookList({ 
+      // current: pagination.current, 
+      // pageSize: pagination.pageSize,
+
+      ...search, 
+    })
+    const { data } = res;
+    setData(res);
+    console.log(data);
+    setPagination({...pagination, total: res.total});
+  }*/
+  async function fetchData(search?: BookQueryType) {
+    const res = await getBookList(search) || []
+    setData(res);
+    setPagination({...pagination, total: res.length});
   }
+
   useEffect(() => {
     fetchData()
-    getCategoryList({all: true}).then(res => {
+    /*getCategoryList({all: true}).then(res => {
       setCategoryList(res.data);
-    })
+    })*/
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const handleSearchFinish = async (values: BookQueryType) => {
-    const res = await getBookList({ ...values, current: 1, pageSize: pagination.pageSize })
-    setData(res.data)
-    setPagination({ ...pagination, current: 1, total: res.total })
+  const handleSearchFinish = async (search?: BookQueryType) => {
+    // const res = await getBookList({ ...values, current: 1, pageSize: pagination.pageSize })
+    const res = await getBookList(search) || []
+    debugger
+    setData(res)
+    // setPagination({ ...pagination, current: 1, total: res.total })
+    setPagination({ ...pagination, current: 1, total: res.length})
 
   }
 
@@ -108,37 +152,62 @@ export default function Home() {
     form.resetFields()
   }
 
-  const handleBookEdit = (id: string) => {
-    router.push(`/book/edit/${id}`);
+  // const handleBookEdit = (params: BookType) => {
+  //   // 发送请求的逻辑
+  //   request.post("/book/editBook", {
+  //     data: params
+  //   }).then(() => {
+  //     // 请求成功后导航到新页面
+  //     router.push('/book/editBook');
+  //   }).catch(error => {
+  //     // 处理错误
+  //     console.log(error);
+  //   });
+  // }
+  const handleBookEdit = (params: BookType) => {
+    localStorage.setItem('editBookData', JSON.stringify(params));
+    router.push(`/book/edit/${params.id}`);
+    
+    // const bookEditData = JSON.parse(localStorage.getItem("editBookData") || '{}');
+  }
+  const handleBookAdd = () => {
+    // debugger
+    router.push("/book/add");
   }
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
-    setPagination(pagination)
-    const query = form.getFieldsValue()
-    getBookList({
-      current: pagination.current,
-      pageSize: pagination.pageSize,
-      ...query
-    })
+     setPagination(pagination)
+    // const query = form.getFieldsValue()
+    //  getBookList({
+    //   current: pagination.current,
+    //   pageSize: pagination.pageSize,
+    //   ...query
+    // })
+    getBookList()
+
   }
   const handleBookDelete = async (id: string) => {
     await bookDelete(id);
     message.success("删除成功");
-    fetchData(form.getFieldsValue());
+    fetchData();
+  }
+  const handleSelectChange = (value: TAG) => {
+    setSelectTag(value);
   }
 
   const columns = [...COLUMNS,
   {
     title: '操作', key: "action", render: (_: any, row: any) => {
+      // debugger
       return <Space>
         <Button type="link" onClick={()=> {
-          handleBookEdit(row._id);
+          handleBookEdit(row as BookType);
         }}> 编辑</Button>
         <Button 
           type="link" 
           danger
           onClick={()=> {
-            handleBookDelete(row._id);
+            handleBookDelete(row.id);
           }}
         >删除</Button>
       </Space>
@@ -153,9 +222,7 @@ export default function Home() {
       operation={
         <Button
           type="primary"
-          onClick={()=> {
-            router.push("/book/add")
-          }}
+          onClick={handleBookAdd}
         >添加</Button>
       }> 
       <Form
@@ -178,12 +245,15 @@ export default function Home() {
             </Form.Item>
           </Col>
           <Col span={5}>
-            <Form.Item name="category" label="分类" >
+            <Form.Item name="tag" label="分类" >
               <Select
                 allowClear
-                showSearch
                 placeholder="请选择"
-                options={categoryList.map(item => ({label: item.name, value: item._id}))} />
+                value={selectTag}
+                onChange={handleSelectChange}
+                options={Object.values(TAG).map(tag => ({label: tag, value: tag}))}
+                 >
+                </Select>
             </Form.Item>
           </Col>
           <Col span={9}>
